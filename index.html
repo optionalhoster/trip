@@ -1,0 +1,725 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The Fall Loop 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya:wght@500;700;800&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+body{margin:0}img{max-width:100%}[hidden]{display:none!important}
+
+/* Layout: a road-log. Single column, sticky day selector, each day = header card + timestamped log down a dashed "road" line. */
+:root{
+  --bg:#EDF0EA; --surface:#F8FAF6; --ink:#1B2822; --muted:#5A6B61; --line:#CBD4CC;
+  --maple:#B3301C; --gold:#B7791A; --spruce:#2F5D4A; --slate:#4A5A78; --dusk:#6B4A7A;
+  --tint-maple:#F6E1DC; --tint-gold:#F5EAD5; --tint-spruce:#DDEAE2; --tint-slate:#E1E5EE; --tint-dusk:#ECE2F0;
+  --display:"Alegreya",Georgia,"Times New Roman",serif;
+  --body:"Work Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111713; --surface:#18211C; --ink:#E5EBE6; --muted:#9DAEA3; --line:#2E3B34;
+  --maple:#EE7A62; --gold:#E6B04E; --spruce:#7CC3A3; --slate:#9DB0D8; --dusk:#C49BD6;
+  --tint-maple:#3A1F19; --tint-gold:#352B18; --tint-spruce:#1D3228; --tint-slate:#212838; --tint-dusk:#2E2236;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111713; --surface:#18211C; --ink:#E5EBE6; --muted:#9DAEA3; --line:#2E3B34;
+  --maple:#EE7A62; --gold:#E6B04E; --spruce:#7CC3A3; --slate:#9DB0D8; --dusk:#C49BD6;
+  --tint-maple:#3A1F19; --tint-gold:#352B18; --tint-spruce:#1D3228; --tint-slate:#212838; --tint-dusk:#2E2236;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55}
+.wrap{max-width:860px;margin:0 auto;padding-inline:16px;padding-block:32px 64px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.1}
+a{color:var(--spruce)}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--maple);outline-offset:2px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+/* Hero */
+header.hero{display:grid;gap:14px;padding-bottom:24px;border-bottom:1px solid var(--line)}
+.hero h1{font-size:clamp(44px,9vw,76px);font-weight:800;letter-spacing:-.01em}
+.hero h1 span{color:var(--maple)}
+.hero p{margin:0;max-width:62ch;color:var(--muted);font-size:17px}
+.crew{display:flex;flex-wrap:wrap;gap:8px}
+.crew span{font-weight:600;font-size:14px;padding:4px 12px;border:1px solid var(--line);border-radius:99px;background:var(--surface)}
+.facts{display:flex;flex-wrap:wrap;gap:8px 28px;margin-top:4px}
+.facts div{display:grid}
+.facts b{font-family:var(--mono);font-size:20px;font-variant-numeric:tabular-nums}
+.facts small{font-size:12px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+
+/* Sticky day nav */
+nav.days{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:10px;margin-inline:-16px;padding-inline:16px;border-bottom:1px solid var(--line)}
+nav.days .row{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+nav.days a{flex:0 0 auto;text-decoration:none;color:var(--ink);font-size:13px;font-weight:600;padding:6px 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface);white-space:nowrap}
+nav.days a .mono{color:var(--maple);margin-right:6px}
+nav.days a.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+nav.days a.on .mono{color:var(--gold)}
+
+/* Route overview */
+section{scroll-margin-top:70px}
+.block{padding-top:40px}
+.block > h2{font-size:30px;margin-bottom:6px}
+.block > p.lead{margin:0 0 18px;color:var(--muted);max-width:62ch}
+.route{list-style:none;margin:0;padding:0;display:grid;gap:0}
+.route li{display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:baseline;padding:10px 0;border-bottom:1px dashed var(--line)}
+.route li:last-child{border-bottom:0}
+.route .d{font-family:var(--mono);color:var(--maple);font-weight:600}
+.route .r{min-width:0}
+.route .r b{font-weight:600}
+.route .r small{display:block;color:var(--muted);font-size:13px}
+.route .m{font-family:var(--mono);font-size:14px;color:var(--muted);text-align:right;white-space:nowrap}
+.changes{margin-top:16px;padding:12px 14px;border-radius:10px;background:var(--tint-spruce);font-size:14px}
+
+/* Day */
+.day{padding-top:44px}
+.dayhead{display:grid;gap:10px;padding:18px;border-radius:14px;background:var(--surface);border:1px solid var(--line)}
+.dayhead .top{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 16px;align-items:baseline}
+.dayhead h2{font-size:clamp(26px,5vw,34px)}
+.dayhead h2 em{font-style:normal;color:var(--maple)}
+.stats{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:14px;color:var(--muted)}
+.stats b{color:var(--ink);font-weight:600}
+.roads{display:flex;flex-wrap:wrap;gap:6px}
+.shield{font-family:var(--mono);font-size:11px;font-weight:600;padding:2px 7px;border-radius:5px 5px 9px 9px;border:1.5px solid var(--slate);color:var(--slate);background:var(--tint-slate)}
+.shield.i{border-color:var(--maple);color:var(--maple);background:var(--tint-maple)}
+.note{font-size:14px;padding:8px 12px;border-radius:8px;background:var(--tint-gold);color:var(--ink)}
+
+.log{list-style:none;margin:16px 0 0;padding:0;position:relative}
+.log::before{content:"";position:absolute;left:94px;top:6px;bottom:6px;border-left:2px dashed var(--line)}
+.log li{display:grid;grid-template-columns:82px 24px 1fr;gap:0;padding:9px 0}
+.log time{font-family:var(--mono);font-size:13px;font-weight:600;font-variant-numeric:tabular-nums;padding-top:2px;text-align:right;padding-right:10px;color:var(--ink)}
+.log .dot{width:12px;height:12px;border-radius:50%;margin:6px 0 0 7px;background:var(--bg);border:2.5px solid var(--muted);position:relative;z-index:1}
+.log .txt{min-width:0;padding-left:8px}
+.log .txt b{font-weight:600}
+.log .txt p{margin:2px 0 0;color:var(--muted);font-size:14.5px;max-width:60ch}
+.tag{display:inline-block;margin-left:8px;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;padding:1px 6px;border-radius:4px;vertical-align:2px}
+.log li.see .dot{border-color:var(--maple);background:var(--maple)}
+.log li.see .txt b{font-family:var(--display);font-size:19px;font-weight:700}
+.tag.see{background:var(--tint-maple);color:var(--maple)}
+.log li.food .dot{border-color:var(--gold)}
+.tag.food{background:var(--tint-gold);color:var(--gold)}
+.log li.drive .dot{border-color:var(--spruce)}
+.tag.drive{background:var(--tint-spruce);color:var(--spruce)}
+.log li.ferry .dot,.log li.border .dot{border-color:var(--dusk)}
+.tag.ferry,.tag.border{background:var(--tint-dusk);color:var(--dusk)}
+.log li.sleep .dot{border-color:var(--slate)}
+.tag.sleep{background:var(--tint-slate);color:var(--slate)}
+
+/* Checklist */
+.check{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.check label{display:flex;gap:12px;align-items:flex-start;padding:10px 12px;border-radius:10px;background:var(--surface);border:1px solid var(--line);cursor:pointer}
+.check input{width:18px;height:18px;margin-top:2px;accent-color:var(--spruce);flex:0 0 auto}
+.check span{min-width:0}
+.check small{display:block;color:var(--muted);font-size:13px}
+.check input:checked + span{text-decoration:line-through;color:var(--muted)}
+.progress{font-family:var(--mono);font-size:13px;color:var(--muted);margin-bottom:10px}
+
+/* Budget */
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+td.n{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+th.n{text-align:right}
+tr:last-child td{border-bottom:0}
+tr.total td{font-weight:700;background:var(--tint-spruce)}
+.fine{font-size:13px;color:var(--muted);margin-top:8px}
+
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.card{padding:14px 16px;border-radius:12px;background:var(--surface);border:1px solid var(--line)}
+.card h3{font-size:20px;margin-bottom:6px}
+.card p,.card ul{margin:0;font-size:14.5px;color:var(--muted)}
+.card ul{padding-left:18px}
+.links{display:flex;flex-wrap:wrap;gap:8px}
+.links a{font-size:14px;padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);text-decoration:none}
+footer{margin-top:48px;font-size:13px;color:var(--muted)}
+
+@media (max-width:520px){
+  .log::before{left:72px}
+  .log li{grid-template-columns:62px 22px 1fr}
+  .log time{font-size:12px;padding-right:6px}
+  .log .dot{margin-left:5px}
+  .route li{grid-template-columns:34px 1fr auto}
+}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+
+/* Drivers */
+.pin{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;font-family:var(--mono);font-size:12px;font-weight:600;color:#fff;flex:0 0 auto}
+.pin.p0,.bar i.p0{background:var(--maple)} .pin.p1,.bar i.p1{background:var(--spruce)} .pin.p2,.bar i.p2{background:var(--slate)} .pin.p3,.bar i.p3{background:var(--gold)}
+.drivers{display:grid;gap:10px;padding:16px;border-radius:12px;background:var(--surface);border:1px solid var(--line)}
+.drow{display:grid;grid-template-columns:24px 84px 1fr auto;gap:10px;align-items:center}
+.drow small{grid-column:2/-1;margin-top:-8px;color:var(--muted);font-size:12px;display:none}
+.bar{height:10px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:99px}
+.legs{list-style:none;margin:0;padding:10px 0 0;border-top:1px dashed var(--line);display:grid;gap:6px}
+.legs li{display:grid;grid-template-columns:24px 1fr auto;gap:10px;align-items:center;font-size:14px}
+.legs .lg{min-width:0;color:var(--muted)} .legs .lg b{color:var(--ink);font-weight:600;margin-right:4px}
+.legs .t{font-size:12.5px;color:var(--muted)}
+/* Splitter */
+.status{margin-bottom:12px;padding:10px 12px;border-radius:8px;background:var(--tint-gold);font-size:14px}
+.splitgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;align-items:start}
+.addform{display:grid;gap:8px}
+.addform label,.addform legend{font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.addform input[type=text],.addform input[type=number],.addform select{width:100%;font:inherit;padding:9px 10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.two > div{display:grid;gap:6px;min-width:0}
+fieldset{border:0;padding:0;margin:0;display:grid;gap:6px}
+.who{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;gap:6px;align-items:center;padding:5px 10px;border:1px solid var(--line);border-radius:99px;font-size:14px;text-transform:none!important;letter-spacing:0!important;color:var(--ink)!important;font-weight:500!important;cursor:pointer;background:var(--bg)}
+.chip input{accent-color:var(--spruce)}
+.quick{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px}
+.qbtn{font:inherit;font-size:12.5px;padding:4px 9px;border-radius:6px;border:1px dashed var(--line);background:transparent;color:var(--ink);cursor:pointer}
+.qbtn:hover{border-color:var(--spruce);color:var(--spruce)}
+.btn{font:inherit;font-weight:600;padding:10px 14px;border-radius:8px;border:0;background:var(--ink);color:var(--bg);cursor:pointer;margin-top:4px}
+.btn:disabled{opacity:.6}
+.formmsg{font-size:13px;color:var(--muted);min-height:1em}
+.brow{display:grid;grid-template-columns:24px 1fr auto;gap:10px;align-items:center;padding:6px 0;border-bottom:1px dashed var(--line)}
+.brow:last-child{border-bottom:0}
+.pos{color:var(--spruce);font-weight:600} .neg{color:var(--maple);font-weight:600}
+.settle{list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:15px}
+.muted{color:var(--muted)}
+.del{font:inherit;font-size:12.5px;padding:3px 8px;border-radius:6px;border:1px solid var(--line);background:transparent;color:var(--maple);cursor:pointer;white-space:nowrap}
+@media (max-width:520px){.drow{grid-template-columns:24px 70px 1fr auto}}
+.tbl td small{display:block;color:var(--muted);font-size:12.5px;font-weight:400}
+@media (max-width:560px){
+  #split .tbl table,#split .tbl tbody,#split .tbl tr,#split .tbl td{display:block;width:100%}
+  #split .tbl thead{display:none}
+  #split .tbl tr{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:10px 14px;border-bottom:1px solid var(--line)}
+  #split .tbl tr:last-child{border-bottom:0}
+  #split .tbl td{border:0;padding:0}
+  #split .tbl td:nth-child(1){font-weight:600;grid-column:1}
+  #split .tbl td:nth-child(4){grid-column:2;grid-row:1;text-align:right}
+  #split .tbl td:nth-child(2),#split .tbl td:nth-child(3){grid-column:1;font-size:13px;color:var(--muted)}
+  #split .tbl td:nth-child(2)::before{content:"Paid by "}
+  #split .tbl td:nth-child(3)::before{content:"Split: "}
+  #split .tbl td:nth-child(5){grid-column:2;grid-row:2 / span 2;text-align:right;align-self:end}
+  #split .tbl td[colspan]{grid-column:1 / -1}
+  .del{padding:8px 12px;font-size:14px}
+  .qbtn{padding:8px 11px;font-size:14px}
+  .check input{width:22px;height:22px}
+  .addform input[type=text],.addform input[type=number],.addform select{font-size:16px;padding:11px 12px}
+}
+
+/* Toolbar + live */
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px}
+.pill{font-size:12.5px;font-weight:600;padding:5px 10px;border-radius:99px;display:inline-flex;align-items:center;gap:6px;margin-right:auto}
+.pill::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor}
+.pill.ok{background:var(--tint-spruce);color:var(--spruce)} .pill.wait{background:var(--tint-gold);color:var(--gold)}
+.pill.err,.pill.off{background:var(--tint-maple);color:var(--maple)}
+#mesel{font:inherit;font-size:14px;padding:7px 8px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.tbtn{font:inherit;font-size:14px;font-weight:600;padding:7px 12px;border-radius:8px;border:1px solid var(--ink);background:var(--surface);color:var(--ink);cursor:pointer}
+body.editing .tbtn{background:var(--maple);border-color:var(--maple);color:#fff}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:20;max-width:calc(100% - 32px);background:var(--ink);color:var(--bg);padding:10px 14px;border-radius:10px;font-size:14px;box-shadow:0 6px 24px rgba(0,0,0,.25)}
+.upd{font-size:12px;color:var(--muted)}
+/* Edit controls */
+.erow{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.ebtn{font:inherit;font-size:13px;padding:6px 10px;border-radius:7px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+.ebtn.danger{color:var(--maple)}
+.addstop{margin:4px 0 0 106px}
+.iform,.dform,.hform{display:grid;gap:6px;padding:12px;border-radius:10px;background:var(--surface);border:1px dashed var(--maple);margin:6px 0}
+.iform label,.dform label,.hform label{font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.iform input,.iform select,.iform textarea,.dform input,.dform select,.dform textarea,.hform input{width:100%;font:inherit;font-size:16px;padding:9px 10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.three>div{display:grid;gap:4px;min-width:0}
+.two>div{gap:4px}
+.frow{display:flex;gap:8px;flex-wrap:wrap}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.formrow{display:block!important}
+.lrow{display:grid;grid-template-columns:110px 1fr 70px auto;gap:6px;align-items:center}
+.lrow select,.lrow input{padding:7px 8px!important;font-size:15px!important}
+/* Hotels */
+.hotels{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+.hcard{padding:16px;border-radius:12px;background:var(--surface);border:1px solid var(--line);display:grid;gap:8px;align-content:start;min-width:0}
+.hcard h3{font-size:22px}
+.hn{font-size:12px;color:var(--maple);font-weight:600}
+.hcard .area,.hcard .tip{margin:0;font-size:14px;color:var(--muted)}
+.inout{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.inout>div{display:grid;padding:8px 10px;border-radius:8px;background:var(--bg)}
+.inout small{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.inout .mono{font-size:13px}
+.booked{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:14px;padding:8px 10px;border-radius:8px;background:var(--tint-spruce)}
+.booked.none{background:var(--tint-gold);color:var(--gold);font-weight:600}
+@media (max-width:560px){.three{grid-template-columns:1fr 1fr}.addstop{margin-left:0}.lrow{grid-template-columns:1fr 64px auto}.lrow select{grid-column:1/-1}}
+</style>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <div class="eyebrow">Tue Oct 6 – Sun Oct 11, 2026 · Fall road trip · All US</div>
+    <h1>The Fall <span>Loop</span></h1>
+    <p>A loop from Hammond through the Michigan woods, Niagara Falls (US side), the Adirondacks, Vermont, the Maine coast and New York City, then home. Vermont and New Hampshire should be at peak color on these dates. Every restaurant on the plan is HMS-certified halal.</p>
+    <div class="crew"><span>Umair</span><span>Nizam</span><span>Muqtadir</span><span>Afnan</span></div>
+    <div class="facts">
+      <div><b>~2,870</b><small>miles</small></div>
+      <div><b>~49 hr</b><small>behind the wheel</small></div>
+      <div><b>5</b><small>hotel nights</small></div>
+      <div><b>11</b><small>states</small></div>
+      <div><b>~9:00 PM CT</b><small>home Sunday</small></div>
+    </div>
+  </header>
+
+  <nav class="days" aria-label="Jump to a section">
+    <div class="toolbar">
+      <span class="pill wait" id="syncpill" role="status">Connecting…</span>
+      <select id="mesel" aria-label="Who are you"></select>
+      <button type="button" class="tbtn" id="editbtn" aria-pressed="false">Edit plan</button>
+    </div>
+    <div class="row" id="daynav">
+      <a href="#overview"><span class="mono">≡</span>Route</a>
+    </div>
+  </nav>
+  <div class="toast" id="toast" role="status" hidden></div>
+
+  <section class="block" id="overview">
+    <div class="eyebrow">At a glance</div>
+    <h2>The route</h2>
+    <p class="lead">All times on this page are local. Michigan through New York City is on Eastern time (ET). Hammond is on Central time (CT), 1 hour behind.</p>
+    <ol class="route" id="route"></ol>
+    <div class="changes"><b>What changed:</b> The route no longer goes through Canada. Day 2 now ends in Erie, PA, and you reach Niagara on Day 3 morning. New York City is added for Saturday night. New Hampshire is just the Kancamagus Highway now. Meals are HMS-certified halal restaurants or food you pack.</div>
+  </section>
+
+  <section class="block" id="hotels">
+    <div class="eyebrow">Book these now</div>
+    <h2>Hotels: 5 nights</h2>
+    <p class="lead">Each hotel is 1 room with 2 queen beds for 4 adults. Oct 10–11 is the Columbus Day holiday weekend, so book nights 4 and 5 first. Look for free cancellation, free parking, and a fridge and microwave. When you book, tap <b>Edit plan</b> and add the hotel name and confirmation number so everyone has it.</p>
+    <div class="hotels" id="hotelcards"></div>
+    <p class="fine">Most hotels check in from 3–4 PM and check out by 11 AM. Every arrival is after check-in opens and every departure is before checkout, so you won't pay early or late fees. No hotel on Sun Oct 11.</p>
+  </section>
+
+  <section class="block" id="drivers">
+    <div class="eyebrow">Who drives</div>
+    <h2>Driving turns</h2>
+    <p class="lead">Each person drives about 12 to 13 hours over the whole trip. Swap early if the driver is tired. Each day below lists its own turns. To change them, use Edit plan, and these totals update for everyone.</p>
+    <div class="drivers" id="drivertotals"></div>
+  </section>
+
+  <section class="block" id="halal">
+    <div class="eyebrow">Food</div>
+    <h2>HMS halal stops on the route</h2>
+    <p class="lead">There are no HMS-certified restaurants in northern Michigan, upstate New York, Vermont, New Hampshire or Maine. Meals are planned at the certified spots below. For the other meals, bring a cooler of food bought at HMS-certified stores in the Hammond/Chicago area, and book hotels that have a fridge and microwave.</p>
+    <div class="tbl"><table>
+      <thead><tr><th>Day</th><th>Meal</th><th>Restaurant (HMS-certified)</th><th>Address</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">D2</td><td>Late lunch + dinner to go</td><td><a href="https://hmsusa.org/certified-detail/fibis" target="_blank" rel="noopener">FIBIS</a> · Mediterranean</td><td>3950 Rochester Rd, Troy, MI · 1 min off I-75</td></tr>
+        <tr><td class="mono">D3</td><td>Lunch</td><td><a href="https://hmsusa.org/certified-detail/holy-burger-buffalo" target="_blank" rel="noopener">Holy Burger Buffalo</a> · burgers</td><td>3941 Broadway, Cheektowaga, NY</td></tr>
+        <tr><td class="mono">D5</td><td>Lunch</td><td><a href="https://hmsusa.org/certified-detail/holy-burger-beverly" target="_blank" rel="noopener">Holy Burger Beverly</a> · burgers</td><td>131 Rantoul St, Beverly, MA</td></tr>
+        <tr><td class="mono">D5</td><td>Dinner</td><td><a href="https://hmsusa.org/certified-detail/holy-burger-jersey-city" target="_blank" rel="noopener">Holy Burger Jersey City</a> · burgers, open till 3 AM</td><td>356 Varick St, Jersey City, NJ</td></tr>
+      </tbody>
+    </table></div>
+    <p class="fine">Backups near Detroit: Holy Cow Burgers (Warren) and NYC Halal Eats (Warren, Farmington Hills). Certifications can change, so check the <a href="https://hmsusa.org/certified-listing" target="_blank" rel="noopener">HMS directory</a> the day before. Meals from the cooler: Day 1 lunch and dinner, Day 3 dinner, Day 4 lunch and dinner, Day 6 lunch and dinner on the road.</p>
+  </section>
+
+  <div id="days"></div>
+
+  <section class="block" id="budget">
+    <div class="eyebrow">Money</div>
+    <h2>Budget per person</h2>
+    <p class="lead">Everything is split 4 ways, and you share one room with two queen beds each night. The car rental is the confirmed $716. Everything else is an estimate, and hotels on the holiday weekend are the biggest unknown.</p>
+    <div class="tbl"><table>
+      <thead><tr><th>Item</th><th>How it's figured</th><th class="n">Total</th><th class="n">Per person</th></tr></thead>
+      <tbody>
+        <tr><td>Car rental (hybrid)</td><td>Booked; gas not included</td><td class="n">$716</td><td class="n">$179</td></tr>
+        <tr><td>Gas</td><td>~2,870 mi at ~42 mpg (hybrid), ~$3.30/gal</td><td class="n">~$225</td><td class="n">~$56</td></tr>
+        <tr><td>Tolls</td><td>Indiana and Ohio both ways, NY Thruway, New England, NYC crossing</td><td class="n">~$150</td><td class="n">~$38</td></tr>
+        <tr><td>Hotels</td><td>5 nights, 1 room; Jersey City and Lincoln cost the most</td><td class="n">$1,300–1,700</td><td class="n">$325–425</td></tr>
+        <tr><td>Attractions</td><td>Mackinac ferry + bikes, Fort Mackinac, SkyBridge, Maid of the Mist, Cave of the Winds, Whiteface toll, Stowe gondola, Top of the Rock</td><td class="n">~$880</td><td class="n">~$220</td></tr>
+        <tr><td>Food</td><td>4 HMS restaurant meals + cooler groceries + snacks</td><td class="n">~$800</td><td class="n">~$200</td></tr>
+        <tr class="total"><td>Total</td><td></td><td class="n">~$4,070–4,470</td><td class="n">~$1,020–1,120</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section class="block" id="split">
+    <div class="eyebrow">Money</div>
+    <h2>Money splitter</h2>
+    <p class="lead">Whenever someone pays for something, add it here. It shows up on everyone's phone right away, and the page works out who owes whom.</p>
+    <div class="status" id="splitstatus" hidden></div>
+
+    <div class="splitgrid">
+      <form class="card addform" id="addform" autocomplete="off">
+        <h3>Add an expense</h3>
+        <div class="quick" id="quick"></div>
+        <label for="f-desc">What was it for</label>
+        <input id="f-desc" type="text" required maxlength="80" placeholder="e.g. Car rental">
+        <div class="two">
+          <div><label for="f-amt">Amount ($)</label><input id="f-amt" type="number" inputmode="decimal" step="0.01" min="0.01" required placeholder="0.00"></div>
+          <div><label for="f-paid">Paid by</label><select id="f-paid"></select></div>
+        </div>
+        <fieldset><legend>Split between</legend><div class="who" id="f-who"></div></fieldset>
+        <button type="submit" class="btn" id="f-submit">Add expense</button>
+        <div class="formmsg" id="formmsg" role="status"></div>
+      </form>
+
+      <div class="card">
+        <h3>Balances</h3>
+        <div id="balances"></div>
+        <h3 style="margin-top:16px">To settle up</h3>
+        <ul class="settle" id="settle"></ul>
+      </div>
+    </div>
+
+    <div class="tbl" style="margin-top:12px"><table>
+      <thead><tr><th>Expense</th><th>Paid by</th><th>Split</th><th class="n">Amount</th><th></th></tr></thead>
+      <tbody id="explist"></tbody>
+    </table></div>
+    <p class="fine" id="exptotal"></p>
+  </section>
+
+  <section class="block" id="checklist">
+    <div class="eyebrow">Before you leave</div>
+    <h2>Checklist</h2>
+    <p class="lead">Tick items off as you go. Everyone sees the same ticks right away.</p>
+    <div class="progress" id="progress"></div>
+    <ul class="check" id="checks"></ul>
+  </section>
+
+  <section class="block" id="tips">
+    <div class="eyebrow">On the road</div>
+    <h2>Tips and backup plans</h2>
+    <div class="grid2">
+      <div class="card"><h3>If you fall behind</h3><ul><li>Day 2: skip Fort Mackinac and take an earlier ferry back.</li><li>Day 3: skip Terrapin Point and drive straight to lunch.</li><li>Day 5: skip Kennebunkport (saves about 40 min).</li><li>Day 6: skip sunrise and leave at 6:30 AM.</li></ul></div>
+      <div class="card"><h3>Weather and packing</h3><p>Mornings on Whiteface and in the White Mountains can be near freezing. The Maine coast is windy. Pack a warm layer, a rain jacket and good walking shoes.</p></div>
+      <div class="card"><h3>No signal zones</h3><p>Northern Michigan, the Adirondacks and the Kancamagus have spotty or no cell service. Download offline maps and fill the tank before these stretches.</p></div>
+      <div class="card"><h3>Prayer on the road</h3><p>Bring a compass or a qibla app with offline mode, plus a travel prayer mat. Rest areas and state parks have quiet spots.</p></div>
+    </div>
+    <h3 style="font-size:20px;margin:22px 0 10px">Check hours here the day before</h3>
+    <div class="links">
+      <a href="https://www.boynemountain.com/skybridge-michigan" target="_blank" rel="noopener">SkyBridge Michigan</a>
+      <a href="https://www.arnoldtransitcompany.com/ferry-schedule/" target="_blank" rel="noopener">Mackinac ferry</a>
+      <a href="https://whiteface.com/todo/whiteface-veterans-memorial-highway/" target="_blank" rel="noopener">Whiteface Highway</a>
+      <a href="https://www.stowe.com/explore-the-resort/about-the-resort/hours-of-operation.aspx" target="_blank" rel="noopener">Stowe gondola hours</a>
+      <a href="https://hmsusa.org/certified-listing" target="_blank" rel="noopener">HMS certified directory</a>
+      <a href="https://morethanjustparks.com/foliage-tracker/vermont" target="_blank" rel="noopener">Vermont foliage tracker</a>
+      <a href="https://morethanjustparks.com/foliage-tracker/new-hampshire" target="_blank" rel="noopener">NH foliage tracker</a>
+    </div>
+  </section>
+
+  <footer>Planned Sep 30, 2026. Opening hours, ferry times and halal certifications can change, so confirm them before each day.</footer>
+</div>
+
+<script>
+// ===== LIVE SYNC SETUP =====
+// Paste your Firebase web config here (README step 5). Until then the page works on this phone only.
+const FIREBASE_CONFIG = {
+  apiKey: "PASTE_API_KEY",
+  authDomain: "PASTE.firebaseapp.com",
+  projectId: "PASTE_PROJECT_ID",
+  storageBucket: "PASTE.appspot.com",
+  messagingSenderId: "PASTE",
+  appId: "PASTE"
+};
+
+const PEOPLE=["Umair","Nizam","Muqtadir","Afnan"];
+const TAG={see:"Must see",food:"Food",drive:"Drive",ferry:"Ferry",sleep:"Hotel"};
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const hm=m=>{m=Math.max(0,Math.round(+m||0));return `${Math.floor(m/60)}h ${String(m%60).padStart(2,"0")}m`};
+const L=(p,l,m)=>({p,l,m}), I=(t,h,p,k)=>({t,h,p,k});
+
+// ---------- Default plan (used to fill the shared database the first time) ----------
+const DEFAULT_DAYS=[
+ {n:1,date:"Tue Oct 6",title:"Into the Michigan woods",from:"Hammond, IN",to:"Mackinaw City, MI",miles:"~420",drive:"~6.5 hr",sleep:"Mackinaw City, MI",
+  roads:["I-94","US-131","M-119"],note:"You lose an hour when you enter Michigan. Every time after the first row is Eastern. Pack lunch and dinner in the cooler before you leave.",
+  legs:[L("Umair","Hammond → Grand Rapids",165),L("Nizam","Grand Rapids → Boyne Mountain",150),L("Muqtadir","Boyne → Tunnel of Trees → Cross Village",60),L("Afnan","Cross Village → Mackinaw City",40)],
+  items:[I("8:30 AM CT","Pick up food from a Hammond HMS spot","Get lunch and dinner to go for the cooler, plus snacks.","food"),
+   I("9:00 AM CT","Leave Hammond","I-94 East, then US-131 North.","drive"),
+   I("12:45 PM","Rest stop near Grand Rapids","Lunch from the cooler. 30 minutes. Nizam takes over.","food"),
+   I("4:15 PM","SkyBridge Michigan","Boyne Mountain. Ride the lift up and walk the long suspension bridge over the treetops, with glass floor panels in the middle. Check the closing time.","see"),
+   I("5:30 PM","Drive to Harbor Springs","About 35 minutes.","drive"),
+   I("6:05 PM","Tunnel of Trees (M-119)","20 miles from Harbor Springs to Cross Village. The road is narrow with no center line, so drive slowly.","see"),
+   I("7:15 PM","Sunset picnic at Cross Village","Dinner from the cooler, with a view over Lake Michigan.","food"),
+   I("7:50 PM","Drive to Mackinaw City","About 40 minutes. The Mackinac Bridge is lit up at night.","drive"),
+   I("8:30 PM","Check in","Mackinaw City.","sleep")]},
+ {n:2,date:"Wed Oct 7",title:"Mackinac Island, then east",from:"Mackinaw City, MI",to:"Erie, PA",miles:"~565",drive:"~8.5 hr",sleep:"Erie, PA",
+  roads:["I-75","I-280","OH Tpk","I-90"],note:"This is the longest mixed day, so leave the island on time. Everything is in the US, going through Detroit, Toledo and Cleveland.",
+  legs:[L("Afnan","Mackinaw City → Bay City",160),L("Umair","Bay City → Troy (FIBIS)",75),L("Nizam","Troy → Toledo",100),L("Muqtadir","Toledo → Cleveland",105),L("Afnan","Cleveland → Erie",100)],
+  items:[I("7:30 AM","Hotel breakfast","","food"),
+   I("8:00 AM","Ferry to Mackinac Island","About 20 minutes. October schedules are shorter, so confirm the first boat. No cars are allowed on the island.","ferry"),
+   I("8:30 AM","Bike around the island","Rent 4 bikes and ride the flat 8-mile loop on M-185, a state highway with no cars. Stop at Arch Rock, a natural limestone arch high above the lake.","see"),
+   I("9:45 AM","Fort Mackinac","Built by the British in 1780 and fought over again in the War of 1812. Exhibits and views over the harbor.","see"),
+   I("10:45 AM","Grand Hotel and fudge","Walk past the Grand Hotel and its famous long porch.","see"),
+   I("11:30 AM","Ferry back to Mackinaw City","","ferry"),
+   I("11:50 AM","Drive south on I-75","Snack from the cooler on the way.","drive"),
+   I("2:30 PM","Gas and restroom, Bay City","15 minutes. Umair takes over.","drive"),
+   I("4:00 PM","Late lunch at FIBIS, Troy","HMS-certified Mediterranean. 3950 Rochester Rd. Order dinner to go as well.","food"),
+   I("4:45 PM","Through Detroit to Toledo","Expect rush-hour traffic.","drive"),
+   I("6:30 PM","Gas near Toledo","Eat the FIBIS dinner you ordered to go.","food"),
+   I("6:50 PM","East past Cleveland on I-90","Along Lake Erie into Pennsylvania.","drive"),
+   I("10:15 PM","Check in, Erie, PA","Sleeping here puts you under 2 hours from Niagara.","sleep")]},
+ {n:3,date:"Thu Oct 8",title:"Niagara, then the Adirondacks",from:"Erie, PA",to:"Lake Placid, NY",miles:"~440",drive:"~7 hr",sleep:"Lake Placid, NY",
+  roads:["I-90","I-190","I-81","NY-3"],note:"Everything at Niagara today is on the US side, in Niagara Falls State Park.",
+  legs:[L("Umair","Erie → Niagara Falls → Cheektowaga",140),L("Nizam","Cheektowaga → Syracuse",150),L("Muqtadir","Syracuse → Lake Placid",180)],
+  items:[I("6:45 AM","Hotel breakfast","","food"),
+   I("7:00 AM","Leave Erie","I-90 East, then I-190 to Niagara Falls.","drive"),
+   I("8:50 AM","Niagara Falls State Park","Park near the visitor center.","drive"),
+   I("9:00 AM","Maid of the Mist","A boat ride into the spray at the base of Horseshoe Falls. Ponchos are provided.","see"),
+   I("10:15 AM","Cave of the Winds","Wooden walkways up to the Hurricane Deck, right under Bridal Veil Falls.","see"),
+   I("11:10 AM","Terrapin Point, Goat Island","The closest view of Horseshoe Falls from the US side.","see"),
+   I("12:10 PM","Lunch at Holy Burger Buffalo","HMS-certified. 3941 Broadway, Cheektowaga, right on the way east.","food"),
+   I("1:00 PM","Drive to Lake Placid","I-90 to Syracuse, then north into the Adirondacks. About 5.5 hours with one stop.","drive"),
+   I("6:30 PM","Mirror Lake at dusk","A walk along the lake on Lake Placid's Main Street.","see"),
+   I("7:00 PM","Olympic Center","Lake Placid hosted the 1932 and 1980 Winter Olympics. The 1980 \"Miracle on Ice\" hockey game was played here.","see"),
+   I("7:30 PM","Dinner from the cooler, then check in","Use the hotel microwave.","sleep")]},
+ {n:4,date:"Fri Oct 9",title:"Whiteface and Vermont",from:"Lake Placid, NY",to:"Lincoln, NH",miles:"~230",drive:"~5 hr",sleep:"Lincoln, NH",
+  roads:["NY-86","I-87","US-2","I-89","I-93"],note:"The Whiteface highway usually closes for the season in mid-October. Confirm it's open on Oct 9.",
+  legs:[L("Nizam","Lake Placid → Whiteface → Plattsburgh ferry",90),L("Afnan","Grand Isle → Stowe",75),L("Umair","Stowe → Lincoln, NH",105)],
+  items:[I("7:30 AM","Hotel breakfast","","food"),
+   I("8:40 AM","Whiteface Memorial Highway","The toll gate in Wilmington is 20 minutes away. The road climbs 8 miles up the mountain.","drive"),
+   I("9:10 AM","Summit walkway, Whiteface","Walk the stone path to the 4,867-ft summit, or take the elevator. On a clear day you can see Vermont and Canada. It's cold at the top.","see"),
+   I("10:30 AM","Drive to Plattsburgh","About 50 minutes.","drive"),
+   I("11:20 AM","Ferry across Lake Champlain","Plattsburgh to Grand Isle, VT. About 12 minutes on the water, paid per car.","ferry"),
+   I("12:45 PM","Picnic lunch in Stowe","From the cooler. You can also stop at Cold Hollow Cider Mill for cider and donuts (no meat, not HMS-certified).","food"),
+   I("1:45 PM","Gondola SkyRide, Stowe","Ride up Mount Mansfield, Vermont's highest peak, over the fall color. Check the fall hours.","see"),
+   I("3:30 PM","Stowe village","The white-steeple church and the classic Vermont postcard view.","see"),
+   I("4:30 PM","Drive to Lincoln, NH","I-89 and I-93.","drive"),
+   I("6:30 PM","Dinner from the cooler and check in","Restock the cooler at a grocery store in Lincoln if you need to.","sleep")]},
+ {n:5,date:"Sat Oct 10",title:"Kancamagus, Maine, New York",from:"Lincoln, NH",to:"Jersey City, NJ",miles:"~420",drive:"~8 hr",sleep:"Jersey City, NJ",
+  roads:["NH-112","NH-16","I-95","I-84"],note:"Staying in Jersey City keeps parking cheap, puts you next to an HMS dinner spot, and sets you up for the drive home.",
+  legs:[L("Muqtadir","Kancamagus: Lincoln → Conway",60),L("Afnan","Conway → Kennebunkport → Ogunquit",110),L("Nizam","Ogunquit → Beverly, MA",55),L("Umair","Beverly → Hartford",130),L("Muqtadir","Hartford → Jersey City",140)],
+  items:[I("6:45 AM","Fill the gas tank in Lincoln","The Kancamagus has no gas stations and no cell signal.","drive"),
+   I("7:00 AM","Kancamagus Highway","34 miles from Lincoln to Conway through the morning mist. Stop at Pemi Overlook, Sabbaday Falls (a short walk) and the Albany Covered Bridge.","see"),
+   I("9:00 AM","Breakfast from the cooler in Conway","","food"),
+   I("9:20 AM","Drive to Kennebunkport, Maine","About 1 hour 40 minutes.","drive"),
+   I("11:00 AM","Kennebunkport","Dock Square, then drive past Walker's Point, the Bush family's summer home.","see"),
+   I("11:45 AM","Marginal Way cliff walk, Ogunquit","A 1.25-mile paved path along the rocky coast, ending at Perkins Cove.","see"),
+   I("1:45 PM","Lunch at Holy Burger Beverly","HMS-certified. 131 Rantoul St, Beverly, MA.","food"),
+   I("2:30 PM","Drive to Jersey City","About 4.5 hours with Saturday traffic.","drive"),
+   I("7:15 PM","Check in, Jersey City","Leave the car at the hotel.","sleep"),
+   I("7:45 PM","Dinner at Holy Burger Jersey City","HMS-certified. 356 Varick St.","food"),
+   I("8:45 PM","PATH train into Manhattan","About 15 minutes.","drive"),
+   I("9:15 PM","Times Square and Rockefeller Center","Top of the Rock is open late for a night view of the Empire State Building.","see"),
+   I("11:30 PM","PATH back to the hotel","","sleep")]},
+ {n:6,date:"Sun Oct 11",title:"Sunrise over Liberty, then home",from:"Jersey City, NJ",to:"Hammond, IN",miles:"~810",drive:"~12.5 hr",sleep:"Home",
+  roads:["I-78","I-80","OH Tpk","I-90"],note:"This is the longest day, so keep stops short. You gain an hour back when you enter Central time in Indiana.",
+  legs:[L("Nizam","Jersey City → State College, PA",230),L("Muqtadir","State College → Youngstown, OH",165),L("Afnan","Youngstown → Toledo",165),L("Umair","Toledo → Elkhart, IN",120),L("Afnan","Elkhart → Hammond",80)],
+  items:[I("6:40 AM","Sunrise at Liberty State Park","Sunrise is around 7:05 AM. See the Statue of Liberty, Ellis Island and the Manhattan skyline. Millions of immigrants caught trains west from the old railroad terminal here.","see"),
+   I("7:30 AM","Leave for Hammond","I-78 to I-80 West across Pennsylvania.","drive"),
+   I("11:30 AM","Lunch stop near State College, PA","From the cooler. 30 minutes.","food"),
+   I("2:45 PM","Gas near Youngstown, OH","15 minutes.","drive"),
+   I("5:45 PM","Gas and snack at an Ohio Turnpike plaza","Near Toledo. 20 minutes.","food"),
+   I("8:00 PM ET","Enter Central time","Near the Indiana state line. Clocks go back 1 hour.","drive"),
+   I("~9:00 PM CT","Home in Hammond","About an hour before your 10 PM deadline. Get a celebration dinner at a local HMS spot.","sleep")]}
+];
+const H=(night,where,area,inDate,inTime,outDate,outTime,tip)=>({night,where,area,inDate,inTime,outDate,outTime,tip,name:"",conf:"",cost:""});
+const DEFAULT_HOTELS=[
+ H(1,"Mackinaw City, MI","Downtown, walking distance to the island ferry docks","Tue Oct 6","~8:30 PM ET","Wed Oct 7","7:45 AM ET","Ask to leave the car in the lot until about 11:45 AM while you're on the island."),
+ H(2,"Erie, PA","Near I-90 exit 24 (Peach St)","Wed Oct 7","~10:15 PM ET","Thu Oct 8","7:00 AM ET","Late arrival. Call ahead so they hold the room."),
+ H(3,"Lake Placid, NY","On Main Street or near Mirror Lake","Thu Oct 8","~6:30 PM ET","Fri Oct 9","8:20 AM ET","Ask for breakfast from 7:00 AM."),
+ H(4,"Lincoln, NH","Route 112 near Loon Mountain, where the Kancamagus starts","Fri Oct 9","~6:30 PM ET","Sat Oct 10","6:45 AM ET","Early checkout. Settle the bill the night before."),
+ H(5,"Jersey City, NJ","Downtown, near Grove St or Exchange Place PATH, with on-site parking","Sat Oct 10","~7:15 PM ET","Sun Oct 11","6:25 AM ET","Confirm the parking price and that you can leave before 6:30 AM.")
+];
+const CHECKS=[
+ ["hotels","Book all 5 hotels today","See the Hotels section for exact dates and times. Book Lincoln and Jersey City first."],
+ ["car","Confirm the hybrid rental","Pickup time on Oct 6, add all 4 drivers to the rental, and check the mileage policy."],
+ ["cooler","Stock the cooler","Buy HMS-certified meat and ready meals in Hammond/Chicago for about 6 meals, plus snacks and water."],
+ ["ezpass","Bring an E-ZPass","It works on every toll road on this route."],
+ ["maps","Download offline maps","Northern Michigan, the Adirondacks and the White Mountains."],
+ ["hours","Oct 5: confirm hours","SkyBridge, Mackinac ferry, Whiteface Highway, Stowe gondola, and the HMS restaurants."],
+ ["pack","Pack warm layers","Near-freezing mornings at the summits, wind on the coast."],
+ ["cash","Carry some cash","For ferries, bike rentals and small-town stops."]
+];
+
+// ---------- State ----------
+const clone=o=>JSON.parse(JSON.stringify(o));
+let days=clone(DEFAULT_DAYS), hotels=clone(DEFAULT_HOTELS), checks={}, expenses=[];
+let store=null, live=false, editMode=false, editing=null, pendingDel=null;
+let me=(()=>{try{return localStorage.getItem("fallloop-me")||""}catch(e){return ""}})();
+
+// ---------- Toolbar: status, who am I, edit ----------
+const statusPill=document.getElementById("syncpill"), meSel=document.getElementById("mesel"), editBtn=document.getElementById("editbtn");
+meSel.innerHTML=`<option value="">Who are you?</option>`+PEOPLE.map(p=>`<option ${p===me?"selected":""}>${p}</option>`).join("");
+meSel.addEventListener("change",()=>{me=meSel.value;try{localStorage.setItem("fallloop-me",me)}catch(e){};if(me)document.getElementById("f-paid").value=me;});
+function setPill(kind,text){statusPill.className="pill "+kind;statusPill.textContent=text;}
+function setStatus(t){const el=document.getElementById("splitstatus");el.textContent=t;el.hidden=!t;}
+editBtn.addEventListener("click",()=>{if(!editMode&&!me){toast("Pick your name first, so everyone can see who made the change.");meSel.focus();return;}
+  editMode=!editMode;editing=null;document.body.classList.toggle("editing",editMode);editBtn.textContent=editMode?"Done editing":"Edit plan";editBtn.setAttribute("aria-pressed",editMode);renderDays();renderHotels();});
+let toastT;function toast(t){const el=document.getElementById("toast");el.textContent=t;el.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>el.hidden=true,4000);}
+
+// ---------- Local fallback ----------
+function saveLocal(){try{localStorage.setItem("fallloop-local",JSON.stringify({days,hotels,checks,expenses}))}catch(e){}}
+function loadLocal(){try{const s=JSON.parse(localStorage.getItem("fallloop-local")||"null");if(s){days=s.days||days;hotels=s.hotels||hotels;checks=s.checks||{};expenses=s.expenses||[];}}catch(e){}}
+
+// ---------- Writes ----------
+const stamp=()=>({updatedBy:me||"Someone",updatedAt:Date.now()});
+async function saveDay(d){Object.assign(d,stamp());
+  if(store){try{await store.collection("days").doc("d"+d.n).set(clone(d));}catch(e){fail(e)}}else saveLocal();}
+async function saveHotels(){if(store){try{await store.collection("trip").doc("hotels").set({rows:clone(hotels),...stamp()});}catch(e){fail(e)}}else saveLocal();}
+function fail(e){toast(explain(e));}
+function explain(e){const c=e&&e.code||"";
+  if(c==="permission-denied")return "Firebase is blocking changes. Paste the rules from the README into Firestore → Rules and click Publish.";
+  if(c==="failed-precondition"||c==="not-found")return "The Firestore database hasn't been created yet. In Firebase, open Build → Firestore Database → Create database.";
+  if(c==="unavailable")return "No internet connection right now. Your change will sync when you're back online.";
+  return "Couldn't sync: "+(e&&e.message||"unknown error");}
+
+// ---------- Render: route, nav, days ----------
+const nav=document.getElementById("daynav"), host=document.getElementById("days");
+function renderRoute(){
+  document.getElementById("route").innerHTML=days.map(d=>`<li><span class="d">D${d.n}</span><span class="r"><b>${esc(String(d.from).split(",")[0])} → ${esc(String(d.to).split(",")[0])}</b><small>${esc(d.date)} · sleep in ${esc(d.sleep)}</small></span><span class="m">${esc(d.miles)} mi</span></li>`).join("");
+  days.forEach(d=>{const a=nav.querySelector(`a[href="#day${d.n}"]`);if(a)a.innerHTML=`<span class="mono">D${d.n}</span>${esc(String(d.date).slice(0,3))} · ${esc(String(d.to).split(",")[0])}`;});
+}
+function legRow(l){const i=PEOPLE.indexOf(l.p);return `<li><span class="pin p${i<0?0:i}">${esc((l.p||"?")[0])}</span><span class="lg"><b>${esc(l.p)}</b> ${esc(l.l)}</span><span class="mono t">${hm(l.m)}</span></li>`;}
+function itemView(it,dn,ix){return `<li class="${esc(it.k)}"><time>${esc(it.t)}</time><span class="dot" aria-hidden="true"></span><div class="txt"><b>${esc(it.h)}</b><span class="tag ${esc(it.k)}">${TAG[it.k]||""}</span>${it.p?`<p>${esc(it.p)}</p>`:""}
+  ${editMode?`<div class="erow"><button class="ebtn" data-act="edit" data-d="${dn}" data-i="${ix}">Edit</button><button class="ebtn" data-act="up" data-d="${dn}" data-i="${ix}" aria-label="Move up">↑</button><button class="ebtn" data-act="down" data-d="${dn}" data-i="${ix}" aria-label="Move down">↓</button><button class="ebtn danger" data-act="del" data-d="${dn}" data-i="${ix}">${pendingDel===dn+"-"+ix?"Confirm delete":"Delete"}</button></div>`:""}</div></li>`;}
+function itemForm(it,dn,ix){const k=Object.keys(TAG).map(x=>`<option value="${x}" ${x===it.k?"selected":""}>${TAG[x]}</option>`).join("");
+  return `<li class="formrow"><form class="iform" data-d="${dn}" data-i="${ix}">
+   <div class="two"><div><label>Time</label><input name="t" value="${esc(it.t)}" required></div><div><label>Type</label><select name="k">${k}</select></div></div>
+   <label>Stop</label><input name="h" value="${esc(it.h)}" required>
+   <label>Notes</label><textarea name="p" rows="3">${esc(it.p)}</textarea>
+   <div class="frow"><button class="btn" type="submit">Save</button><button class="btn ghost" type="button" data-act="cancel">Cancel</button></div></form></li>`;}
+function dayForm(d){const opts=p=>PEOPLE.map(x=>`<option ${x===p?"selected":""}>${x}</option>`).join("");
+  return `<form class="dform" data-d="${d.n}">
+   <div class="two"><div><label>Date</label><input name="date" value="${esc(d.date)}"></div><div><label>Title</label><input name="title" value="${esc(d.title)}"></div></div>
+   <div class="two"><div><label>From</label><input name="from" value="${esc(d.from)}"></div><div><label>To</label><input name="to" value="${esc(d.to)}"></div></div>
+   <div class="three"><div><label>Miles</label><input name="miles" value="${esc(d.miles)}"></div><div><label>Driving</label><input name="drive" value="${esc(d.drive)}"></div><div><label>Sleep</label><input name="sleep" value="${esc(d.sleep)}"></div></div>
+   <label>Note</label><textarea name="note" rows="2">${esc(d.note)}</textarea>
+   <label>Driving turns</label>
+   <div class="legedit">${(d.legs||[]).map((l,i)=>`<div class="lrow"><select name="lp${i}">${opts(l.p)}</select><input name="ll${i}" value="${esc(l.l)}" aria-label="Leg"><input name="lm${i}" type="number" min="0" value="${+l.m||0}" aria-label="Minutes"><button type="button" class="ebtn danger" data-act="dleg" data-i="${i}">✕</button></div>`).join("")}</div>
+   <button type="button" class="ebtn" data-act="aleg">+ Add driving turn</button>
+   <div class="frow"><button class="btn" type="submit">Save day</button><button class="btn ghost" type="button" data-act="cancel">Cancel</button></div></form>`;}
+function renderDays(){
+  host.innerHTML=days.map(d=>{
+    const roads=(d.roads||[]).map(r=>`<span class="shield ${String(r).startsWith("I-")?"i":""}">${esc(r)}</span>`).join("");
+    const headEdit=editing&&editing.type==="day"&&editing.d===d.n;
+    const items=(d.items||[]).map((it,ix)=>editing&&editing.type==="item"&&editing.d===d.n&&editing.i===ix?itemForm(it,d.n,ix):itemView(it,d.n,ix)).join("")
+      +(editing&&editing.type==="item"&&editing.d===d.n&&editing.i===-1?itemForm({t:"",h:"",p:"",k:"see"},d.n,-1):"");
+    const by=d.updatedBy?`<div class="upd">Last changed by ${esc(d.updatedBy)} · ${new Date(d.updatedAt).toLocaleString([], {weekday:"short",hour:"numeric",minute:"2-digit"})}</div>`:"";
+    return `<section class="day" id="day${d.n}"><div class="dayhead">
+      <div class="top"><div class="eyebrow">Day ${d.n} · ${esc(d.date)}</div><div class="roads">${roads}</div></div>
+      ${headEdit?dayForm(d):`<h2>${esc(d.title)}</h2>
+      <div class="stats"><span><b>${esc(d.from)}</b> → <b>${esc(d.to)}</b></span><span>Distance <b class="mono">${esc(d.miles)} mi</b></span><span>Driving <b>${esc(d.drive)}</b></span><span>Sleep <b>${esc(d.sleep)}</b></span></div>
+      ${d.note?`<div class="note">${esc(d.note)}</div>`:""}
+      <ul class="legs">${(d.legs||[]).map(legRow).join("")}</ul>
+      ${editMode?`<button class="ebtn" data-act="editday" data-d="${d.n}">Edit day details and drivers</button>`:""}`}
+      ${by}</div>
+      <ol class="log">${items}</ol>
+      ${editMode&&!(editing&&editing.type==="item"&&editing.d===d.n&&editing.i===-1)?`<button class="ebtn addstop" data-act="add" data-d="${d.n}">+ Add a stop</button>`:""}
+    </section>`}).join("");
+  renderRoute();renderDrivers();
+}
+function renderDrivers(){
+  const tot=Object.fromEntries(PEOPLE.map(p=>[p,{m:0,n:0}]));
+  days.forEach(d=>(d.legs||[]).forEach(l=>{if(tot[l.p]){tot[l.p].m+=+l.m||0;tot[l.p].n++}}));
+  const maxM=Math.max(1,...PEOPLE.map(p=>tot[p].m));
+  document.getElementById("drivertotals").innerHTML=PEOPLE.map((p,i)=>`<div class="drow"><span class="pin p${i}">${p[0]}</span><b>${p}</b><span class="bar"><i class="p${i}" style="width:${(tot[p].m/maxM*100).toFixed(1)}%"></i></span><span class="mono">${hm(tot[p].m)}</span></div>`).join("");
+}
+const dayOf=n=>days.find(d=>d.n===+n);
+host.addEventListener("click",async e=>{const b=e.target.closest("[data-act]");if(!b)return;const act=b.dataset.act;
+  const d=dayOf(b.dataset.d||b.closest("[data-d]")?.dataset.d);const i=+b.dataset.i;
+  if(act==="cancel"){editing=null;renderDays();return;}
+  if(act==="edit"){editing={type:"item",d:d.n,i};pendingDel=null;renderDays();return;}
+  if(act==="add"){editing={type:"item",d:d.n,i:-1};renderDays();return;}
+  if(act==="editday"){editing={type:"day",d:d.n,legs:clone(d.legs||[])};renderDays();return;}
+  if(act==="up"||act==="down"){const j=act==="up"?i-1:i+1;if(j<0||j>=d.items.length)return;[d.items[i],d.items[j]]=[d.items[j],d.items[i]];renderDays();await saveDay(d);return;}
+  if(act==="del"){const key=d.n+"-"+i;if(pendingDel!==key){pendingDel=key;renderDays();return;}pendingDel=null;d.items.splice(i,1);renderDays();await saveDay(d);toast("Stop deleted.");return;}
+  if(act==="aleg"||act==="dleg"){const f=b.closest("form");const legs=readLegs(f);if(act==="aleg")legs.push({p:me||PEOPLE[0],l:"",m:60});else legs.splice(i,1);
+    const tmp={...d,...Object.fromEntries(new FormData(f)),legs};f.outerHTML=dayForm(tmp);return;}
+});
+function readLegs(f){const fd=new FormData(f),out=[];for(let i=0;fd.has("lp"+i);i++)out.push({p:fd.get("lp"+i),l:String(fd.get("ll"+i)||"").trim(),m:+fd.get("lm"+i)||0});return out;}
+host.addEventListener("submit",async e=>{e.preventDefault();const f=e.target;const d=dayOf(f.dataset.d);const fd=Object.fromEntries(new FormData(f));
+  if(f.classList.contains("iform")){const it={t:fd.t.trim(),h:fd.h.trim(),p:fd.p.trim(),k:fd.k};const i=+f.dataset.i;if(i===-1)d.items.push(it);else d.items[i]=it;}
+  else{["date","title","from","to","miles","drive","sleep","note"].forEach(k=>d[k]=String(fd[k]||"").trim());d.legs=readLegs(f).filter(l=>l.l);}
+  editing=null;renderDays();await saveDay(d);toast(live?"Saved. Everyone sees it now.":"Saved on this phone only (live sync isn't set up).");
+});
+
+// ---------- Hotels ----------
+function renderHotels(){
+  document.getElementById("hotelcards").innerHTML=hotels.map((h,i)=>{
+    const booked=h.name?`<div class="booked"><b>${esc(h.name)}</b>${h.conf?`<span>Conf # <span class="mono">${esc(h.conf)}</span></span>`:""}${h.cost?`<span>${esc(h.cost)}</span>`:""}</div>`:`<div class="booked none">Not booked yet</div>`;
+    const form=editMode?`<form class="hform" data-i="${i}"><div class="three"><div><label>Hotel name</label><input name="name" value="${esc(h.name)}" placeholder="e.g. Hampton Inn"></div><div><label>Confirmation #</label><input name="conf" value="${esc(h.conf)}"></div><div><label>Price</label><input name="cost" value="${esc(h.cost)}" placeholder="$189"></div></div>
+      <div class="two"><div><label>Check-in time</label><input name="inTime" value="${esc(h.inTime)}"></div><div><label>Check-out time</label><input name="outTime" value="${esc(h.outTime)}"></div></div>
+      <button class="btn" type="submit">Save hotel</button></form>`:"";
+    return `<div class="hcard"><div class="hn mono">Night ${h.night}</div><h3>${esc(h.where)}</h3><p class="area">${esc(h.area)}</p>
+      <div class="inout"><div><small>Check in</small><b>${esc(h.inDate)}</b><span class="mono">${esc(h.inTime)}</span></div><div><small>Check out</small><b>${esc(h.outDate)}</b><span class="mono">${esc(h.outTime)}</span></div></div>
+      ${booked}<p class="tip">${esc(h.tip)}</p>${form}</div>`}).join("");
+}
+document.getElementById("hotelcards").addEventListener("submit",async e=>{e.preventDefault();const f=e.target;const h=hotels[+f.dataset.i];
+  Object.assign(h,Object.fromEntries([...new FormData(f)].map(([k,v])=>[k,String(v).trim()])));renderHotels();await saveHotels();toast(live?"Hotel saved for everyone.":"Saved on this phone only.");});
+
+// ---------- Nav ----------
+nav.insertAdjacentHTML("beforeend",`<a href="#hotels"><span class="mono">⌂</span>Hotels</a><a href="#drivers"><span class="mono">⟳</span>Drivers</a><a href="#halal"><span class="mono">☾</span>Halal food</a>`+
+  DEFAULT_DAYS.map(d=>`<a href="#day${d.n}"></a>`).join("")+`<a href="#budget"><span class="mono">$</span>Budget</a><a href="#split"><span class="mono">÷</span>Splitter</a><a href="#checklist"><span class="mono">✓</span>Checklist</a><a href="#tips"><span class="mono">!</span>Tips</a>`);
+renderDays();renderHotels();
+const links=[...nav.querySelectorAll("a")];
+const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){links.forEach(a=>a.classList.toggle("on",a.getAttribute("href")==="#"+e.target.id));const on=nav.querySelector("a.on");if(on)on.scrollIntoView({block:"nearest",inline:"nearest"});}})},{rootMargin:"-40% 0px -55% 0px"});
+const observeAll=()=>document.querySelectorAll("section[id]").forEach(s=>obs.observe(s));observeAll();
+
+// ---------- Checklist ----------
+const ul=document.getElementById("checks"),prog=document.getElementById("progress");
+ul.innerHTML=CHECKS.map(([id,t,s])=>`<li><label for="c-${id}"><input type="checkbox" id="c-${id}"><span>${t}<small>${s}</small></span></label></li>`).join("");
+function applyChecks(){CHECKS.forEach(([id])=>{document.getElementById("c-"+id).checked=!!checks[id]});prog.textContent=`${CHECKS.filter(([id])=>checks[id]).length} of ${CHECKS.length} done`;}
+ul.addEventListener("change",async e=>{const id=e.target.id.slice(2);checks={...checks,[id]:e.target.checked};applyChecks();
+  if(store){try{await store.collection("trip").doc("checklist").set(checks)}catch(err){fail(err)}}else saveLocal();});
+
+// ---------- Money splitter ----------
+const fmt=c=>(c<0?"-":"")+"$"+(Math.abs(c)/100).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+const paidSel=document.getElementById("f-paid"),whoBox=document.getElementById("f-who"),msg=document.getElementById("formmsg");
+paidSel.innerHTML=PEOPLE.map(p=>`<option value="${p}" ${p===me?"selected":""}>${p}</option>`).join("");
+whoBox.innerHTML=PEOPLE.map((p,i)=>`<label class="chip" for="w-${i}"><input type="checkbox" id="w-${i}" value="${p}" checked> ${p}</label>`).join("");
+const QUICK=[["Car rental (hybrid)",716],["Gas",""],["Hotel",""],["Tolls",""],["Food",""],["Tickets",""]];
+document.getElementById("quick").innerHTML=QUICK.map(([t,a],i)=>`<button type="button" class="qbtn" data-i="${i}">${t}${a?` · $${a}`:""}</button>`).join("");
+document.getElementById("quick").addEventListener("click",e=>{const b=e.target.closest(".qbtn");if(!b)return;const [t,a]=QUICK[b.dataset.i];document.getElementById("f-desc").value=t;if(a)document.getElementById("f-amt").value=a;document.getElementById(a?"f-paid":"f-amt").focus();});
+function renderSplit(){
+  const bal=Object.fromEntries(PEOPLE.map(p=>[p,0]));let total=0;
+  expenses.forEach(x=>{const who=(x.split||PEOPLE).filter(p=>PEOPLE.includes(p));if(!who.length||!PEOPLE.includes(x.paidBy))return;total+=x.cents;
+    bal[x.paidBy]+=x.cents;const share=Math.floor(x.cents/who.length);let rem=x.cents-share*who.length;who.forEach(p=>{bal[p]-=share+(rem>0?1:0);if(rem>0)rem--;});});
+  document.getElementById("balances").innerHTML=PEOPLE.map((p,i)=>{const b=bal[p];const cls=b>0?"pos":b<0?"neg":"";
+    return `<div class="brow"><span class="pin p${i}">${p[0]}</span><b>${p}</b><span class="mono ${cls}">${b>0?"gets back "+fmt(b):b<0?"owes "+fmt(-b):"even"}</span></div>`}).join("");
+  const cr=PEOPLE.filter(p=>bal[p]>0).map(p=>({p,v:bal[p]})).sort((a,b)=>b.v-a.v),dr=PEOPLE.filter(p=>bal[p]<0).map(p=>({p,v:-bal[p]})).sort((a,b)=>b.v-a.v);
+  const out=[];let i=0,j=0;while(i<dr.length&&j<cr.length){const v=Math.min(dr[i].v,cr[j].v);if(v>0)out.push(`<li><b>${dr[i].p}</b> pays <b>${cr[j].p}</b> <span class="mono">${fmt(v)}</span></li>`);dr[i].v-=v;cr[j].v-=v;if(!dr[i].v)i++;if(!cr[j].v)j++;}
+  document.getElementById("settle").innerHTML=out.join("")||`<li class="muted">Everyone is even.</li>`;
+  document.getElementById("explist").innerHTML=expenses.length?expenses.map(x=>`<tr><td>${esc(x.desc)}</td><td>${esc(x.paidBy)}</td><td>${(x.split||PEOPLE).length===4?"All 4":esc((x.split||[]).join(", "))}</td><td class="n">${fmt(x.cents)}</td><td class="n"><button class="del" data-id="${esc(x.id)}">${pendingDel===x.id?"Confirm delete":"Delete"}</button></td></tr>`).join("")
+    :`<tr><td colspan="5" class="muted">No expenses yet. Tap “Car rental (hybrid) · $716”, pick who paid, then tap Add expense.</td></tr>`;
+  document.getElementById("exptotal").textContent=expenses.length?`Total spent so far: ${fmt(total)} · ${fmt(Math.round(total/4))} per person if split evenly.`:"";
+}
+document.getElementById("explist").addEventListener("click",async e=>{const b=e.target.closest(".del");if(!b)return;const id=b.dataset.id;
+  if(pendingDel!==id){pendingDel=id;renderSplit();return;}pendingDel=null;
+  if(store){try{await store.collection("expenses").doc(id).delete();}catch(err){fail(err)}}else{expenses=expenses.filter(x=>x.id!==id);saveLocal();renderSplit();}});
+document.getElementById("addform").addEventListener("submit",async e=>{e.preventDefault();
+  const desc=document.getElementById("f-desc").value.trim();const amt=parseFloat(document.getElementById("f-amt").value);
+  const split=[...whoBox.querySelectorAll("input:checked")].map(i=>i.value);
+  if(!desc||!(amt>0)){msg.textContent="Enter what it was for and an amount above $0.";return;}
+  if(!split.length){msg.textContent="Pick at least one person to split with.";return;}
+  const rec={desc:desc.slice(0,80),cents:Math.round(amt*100),paidBy:paidSel.value,split,createdAt:Date.now(),addedBy:me||""};
+  const btn=document.getElementById("f-submit");btn.disabled=true;
+  try{if(store){await store.collection("expenses").add(rec);}else{expenses.unshift({...rec,id:"l"+Date.now()});saveLocal();renderSplit();}
+    msg.textContent=`Added ${desc} (${fmt(rec.cents)}).`;e.target.reset();paidSel.value=me||PEOPLE[0];whoBox.querySelectorAll("input").forEach(i=>i.checked=true);
+  }catch(err){msg.textContent=explain(err);}
+  btn.disabled=false;});
+
+// ---------- Connect ----------
+(function connect(){
+  const notSet=String(FIREBASE_CONFIG.apiKey).startsWith("PASTE");
+  if(!window.firebase||notSet){loadLocal();renderDays();renderHotels();applyChecks();renderSplit();
+    setPill("off",notSet?"Not live: Firebase not set up":"Not live: couldn't load Firebase");
+    setStatus(notSet?"Live sync is off because the Firebase config hasn't been added to index.html yet. Changes are saved on this phone only.":"Couldn't load Firebase. Check your internet connection and reload.");return;}
+  setPill("wait","Connecting…");
+  try{firebase.initializeApp(FIREBASE_CONFIG);store=firebase.firestore();}catch(e){setPill("err","Not live");setStatus(explain(e));return;}
+  applyChecks();renderSplit();
+  const ok=()=>{live=true;setPill("ok","Live · synced");setStatus("");};
+  const bad=e=>{live=false;setPill("err","Not live");setStatus(explain(e));};
+  let seeded=false;
+  store.collection("days").orderBy("n").onSnapshot(snap=>{
+    if(snap.empty){if(!snap.metadata.fromCache&&!seeded){seeded=true;const b=store.batch();DEFAULT_DAYS.forEach(d=>b.set(store.collection("days").doc("d"+d.n),clone(d)));b.commit().catch(bad);}return;}
+    ok();
+    snap.docChanges().forEach(c=>{const d=c.doc.data();if(c.type==="modified"&&!c.doc.metadata.hasPendingWrites&&d.updatedBy&&d.updatedBy!==me)toast(`${d.updatedBy} updated Day ${d.n}.`);});
+    days=snap.docs.map(x=>x.data()).filter(d=>d&&d.n);
+    if(!editing)renderDays();
+  },bad);
+  store.collection("trip").doc("hotels").onSnapshot(s=>{
+    if(!s.exists){if(!s.metadata.fromCache)store.collection("trip").doc("hotels").set({rows:clone(DEFAULT_HOTELS),updatedBy:"",updatedAt:0}).catch(bad);return;}
+    const v=s.data();if(!s.metadata.hasPendingWrites&&v.updatedBy&&v.updatedBy!==me&&v.updatedAt>Date.now()-60000)toast(`${v.updatedBy} updated the hotels.`);
+    hotels=Array.isArray(v.rows)?v.rows:hotels;if(!document.activeElement||!document.activeElement.closest(".hform"))renderHotels();},bad);
+  store.collection("trip").doc("checklist").onSnapshot(s=>{checks=s.exists?{...s.data()}:{};applyChecks();},bad);
+  store.collection("expenses").orderBy("createdAt","desc").onSnapshot(snap=>{
+    snap.docChanges().forEach(c=>{const x=c.doc.data();if(c.type==="added"&&!c.doc.metadata.hasPendingWrites&&x.addedBy&&x.addedBy!==me&&x.createdAt>Date.now()-60000)toast(`${x.addedBy} added ${x.desc}.`);});
+    expenses=snap.docs.map(d=>{const v=d.data()||{};return {id:d.id,desc:String(v.desc||""),cents:Number(v.cents)||0,paidBy:String(v.paidBy||""),split:Array.isArray(v.split)?v.split.map(String):PEOPLE,createdAt:v.createdAt}});
+    renderSplit();ok();
+  },bad);
+})();
+</script>
+
+</body>
+</html>
